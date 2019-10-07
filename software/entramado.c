@@ -3,7 +3,7 @@
 
 int main(){
 
-    int entramado(char posicion, int sonar, int lidar, char Data[]){    
+    void entramado(char posicion, int sonar, int lidar, char Data[]){    
         
         Data[0] = (posicion&0b01111111);
         
