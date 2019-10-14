@@ -1,6 +1,8 @@
 global puerto; %Crea el objeto puerto
 puerto=serial('COM7','BaudRate',115200,'Terminator','LF');   %Configutaciond e los parametros del puerto
 fopen(puerto); %abre el puerto
+buffersize = 100;
+flush = 3;
 
     dac=3/(2^16); %Factor de conversión del ADC del microprocesador
 
@@ -39,4 +41,4 @@ fopen(puerto); %abre el puerto
        %A;adido de puntos a la grafica
        
     end
-   
+   instrreset
