@@ -1,8 +1,11 @@
 global puerto; %Crea el objeto puerto
 puerto=serial('COM8','BaudRate',9800,'Terminator','LF');   %Configutaciond e los parametros del puerto
-fopen(puerto); %abre el puerto
+
 muestra = 600;
-puerto.InputBufferSize = muestra;   
+puerto.InputBufferSize = muestra;  
+
+fopen(puerto); %abre el puerto
+ 
     aux=fread(puerto,[1,muestra],'uint8'); 
     posiciones = zeros(1,muestra);
     i=1;
