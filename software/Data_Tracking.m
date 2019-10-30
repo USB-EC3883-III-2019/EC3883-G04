@@ -3,7 +3,7 @@ puerto=serial('COM8','BaudRate',9800,'Terminator','LF');   %Configutaciond e los
 fopen(puerto); %abre el puerto
 muestra = 300;
   
-    aux=fread(puerto,[1,muestra,'uint8'); 
+    aux=fread(puerto,[1,muestra],'uint8'); 
     posiciones = zeros(1,muestra);
     i=1;
     
