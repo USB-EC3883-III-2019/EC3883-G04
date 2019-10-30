@@ -11,14 +11,14 @@ muestra = 300;
     while aux(i)>127
         i=i+1;
     end  
- 
+    j = 1;
 
     bin=dec2bin(aux);    
     while i<(muestra-10)
-
+  
        Numero_de_Pasos = bin(i,3:8);
-       posiciones(i) = bin2dec(Numero_de_Pasos);
-
+       posiciones(j) = bin2dec(Numero_de_Pasos);
+       j = j+1;
        i=i+4;
             
     end
