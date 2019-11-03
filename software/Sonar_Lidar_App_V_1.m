@@ -78,7 +78,12 @@ classdef Sonar_Lidar_App_V_1 < matlab.apps.AppBase
             r_pos = 90*ones(1,length(theta));
                 
             r_fusion = zeros(1,length(theta));
+            aux_Fusion = 0;
             
+            %Data Log Configuration
+            register = fopen('data_log.txt','wt');
+            format = 'Position=%d | Sonar = %d | Lidar = %d | Fusion = %d]\n';
+
             %Port Creation
             global puerto;
             %Port Configuration
@@ -126,10 +131,15 @@ classdef Sonar_Lidar_App_V_1 < matlab.apps.AppBase
                 
                 %Fusion Calc
                 if (aux_Sonar > 10) && (aux_Sonar < aux_Lidar)
-                   r_fusion(dpos) = aux_Sonar;
+                   aux_Fusion = aux_Sonar;
+                   r_fusion(dpos) = aux_Fusion;
                 else
-                    r_fusion(dpos) = aux_Lidar;
+                    aux_Fusion = aux_Lidar;
+                    r_fusion(dpos) = aux_Fusion;
                 end                
+                
+                %Data Log
+                fprintf(register,format,dpos,aux_Sonar,aux_Lidar,aux_Fusion);
                 
                 %Polar to Cartesian Coordinates Conversion
                 [x_sonar, y_sonar] = pol2cart(theta,r_sonar);
@@ -191,6 +201,7 @@ classdef Sonar_Lidar_App_V_1 < matlab.apps.AppBase
         function UIFigureCloseRequest(app, event)
             global App_on;
             App_on = 0;
+            fclose(register);
             instrreset
             delete(app);
             
