@@ -89,7 +89,7 @@ classdef Sonar_Lidar_App_V_1 < matlab.apps.AppBase
             
             %Main Loop
             App_on=1;
-            while  on==1
+            while  App_on==1
                                
                 %Port Data Reading
                 aux = fread(puerto,[1,8],'uint8'); 
