@@ -26,12 +26,28 @@ classdef Sonar_Lidar_App_V_1 < matlab.apps.AppBase
         % Code that executes after component creation
         function startupFcn(app)
             %Variable Creation And Setting
+                        %Including Global Variables
+            global r_pos;
+            global theta;
+            global r_lidar;
+            global r_sonar;
+            global r_fusion;
+            global boton_on;
+            global boton_sonar;
+            global boton_lidar;
+            global boton_fusion;
+            global x_sonar
+            global y_sonar
+            global x_lidar
+            global y_lidar
+            global App_on;
             global pos 
             pos = 1;
             global step;
             step = 3.75;
             global top;
             top = 31;
+            
             global top_grade;
             top_grade = step*top;
             
@@ -51,104 +67,37 @@ classdef Sonar_Lidar_App_V_1 < matlab.apps.AppBase
             theta = -1*(-pi/2+pi/180*[-top_grade:step:top_grade]);
             
             
-            global r_sonar;
+
             r_sonar = zeros(1,length(theta));
 
-            global r_lidar;
+
             r_lidar = zeros(1,length(theta));
 
             
-            global r_pos;
+
             r_pos = 90*ones(1,length(theta));
                 
-            global r_fusion;
             r_fusion = zeros(1,length(theta));
             
             %Port Creation
             global puerto;
             %Port Configuration
-            %JIANLUK CHANGE THE PORT TO THE ONE YOU USEEEEEEEEEEEEEEEEEEEEEEEEEEE
-            %(????)?????            
-            %JIANLUK CHANGE THE PORT TO THE ONE YOU USEEEEEEEEEEEEEEEEEEEEEEEEEEE
-            %(????)?????
-            %JIANLUK CHANGE THE PORT TO THE ONE YOU USEEEEEEEEEEEEEEEEEEEEEEEEEEE
-            %(????)?????
-            %JIANLUK CHANGE THE PORT TO THE ONE YOU USEEEEEEEEEEEEEEEEEEEEEEEEEEE
-            %(????)?????
-            %JIANLUK CHANGE THE PORT TO THE ONE YOU USEEEEEEEEEEEEEEEEEEEEEEEEEEE
-            %(????)?????
-            %JIANLUK CHANGE THE PORT TO THE ONE YOU USEEEEEEEEEEEEEEEEEEEEEEEEEEE
-            %(????)?????
-            %JIANLUK CHANGE THE PORT TO THE ONE YOU USEEEEEEEEEEEEEEEEEEEEEEEEEEE
-            %(????)?????
-            %JIANLUK CHANGE THE PORT TO THE ONE YOU USEEEEEEEEEEEEEEEEEEEEEEEEEEE
-            %(????)?????
             puerto=serial('COM8','BaudRate',9600);
             puerto.InputBufferSize = 10000000;
             %Port Open
             fopen(puerto); 
             
-            
-            
-            
-            
-            
-        end
-
-        % Value changed function: LidarButton
-        function Lidar(app, event)
-            global boton_lidar
-            value = app.LidarButton.Value;
-            boton_lidar = value;
-            global theta
-            global r_lidar
-            %r_lidar = zeros(1,length(theta));
-      
-        end
-
-        % Button pushed function: StartButton
-        function Loop(app, event)
-            %Including Global Variables
-            global puerto;
-            global r_pos;
-            global theta;
-            global r_lidar;
-            global r_sonar;
-            global r_fusion;
-            global pos;
-            global boton_on;
-            global boton_sonar;
-            global boton_lidar;
-            global boton_fusion;
-            global flush
-            flush=0;
-            global x_sonar
-            global y_sonar
-            global x_lidar
-            global y_lidar
-            
-            buffersize = 10000;
-            
-
-            if boton_on==1
-            while  boton_on~=0
-               
-                
-              %Port Flush
-              %  flush=flush+1;
-                
-             %   if flush>1
-              %  flushinput(puerto)
-               % flush = 0;
-                %end                
-                
-                
+            %Main Loop
+            App_on=1;
+            while  on==1
+                               
                 %Port Data Reading
-                aux = fread(puerto,[1,buffersize],'uint8'); 
+                aux = fread(puerto,[1,8],'uint8'); 
                 
 
                 i = 1;
                 
+                %Synchronization
                 while aux(i)>63
                     i=i+1
                 end
@@ -157,24 +106,16 @@ classdef Sonar_Lidar_App_V_1 < matlab.apps.AppBase
                 bin = dec2bin(aux);
 
                 %Data Decode
-                while i<(buffersize-4)
-                   Sonar_Data = strcat(bin(i+1,3:8),bin(i+2,2:3));
+                Sonar_Data = strcat(bin(i+1,3:8),bin(i+2,2:3));
                   
-                   Lidar_Data = strcat(bin(i+2,4:8),bin(i+3,2:8));
+                Lidar_Data = strcat(bin(i+2,4:8),bin(i+3,2:8));
                    
-                   pos = bin(i,3:8);
-                   
-                  i=i+4;
-                  
-                %end
-                boton_lidar;
-                boton_on;
-                boton_sonar;            
-
+                pos = bin(i,3:8);
+                
                 dpos=bin2dec(pos)
                
                
-                %Here should Go The Necessary Data Preprocessing
+                %Data Preprocessing
                 aux_Sonar = bin2dec(Sonar_Data)*122/58;
                 %aux_Lidar = 294238.093*(bin2dec(Lidar_Data)^-1.38)
                 aux_Lidar = 207650*(bin2dec(Lidar_Data)^-1.391)
@@ -184,11 +125,11 @@ classdef Sonar_Lidar_App_V_1 < matlab.apps.AppBase
                 r_lidar(dpos) = aux_Lidar;
                 
                 %Fusion Calc
-               % if (Sonar_Data > 10) && (Sonar_Data < Lidar_Data)
-                %   r_fusion(pos) = Sonar_Data;
-               % else
-                %    r_fusion(pos) = Lidar_Data;
-               % end                
+                if (aux_Sonar > 10) && (aux_Sonar < aux_Lidar)
+                   r_fusion(dpos) = aux_Sonar;
+                else
+                    r_fusion(dpos) = aux_Lidar;
+                end                
                 
                 %Polar to Cartesian Coordinates Conversion
                 [x_sonar, y_sonar] = pol2cart(theta,r_sonar);
@@ -200,49 +141,39 @@ classdef Sonar_Lidar_App_V_1 < matlab.apps.AppBase
                 [x_pos, y_pos] = pol2cart(theta,r_pos);    
 
                 
-                
-               
-                
                 %This Is The Blue Line
                 app.Axes.NextPlot = 'replacechildren';
-                plot(app.Axes,[0 x_pos(dpos)],[0 y_pos(dpos)],'w','Linewidth',2)
+                plot(app.Axes,[0 x_pos(dpos)],[0 y_pos(dpos)],'w','Linewidth',1)
                 app.Axes.NextPlot = 'add';
                 
                 %Ploting The Sonar 
                 if boton_sonar~=0
-
                     stem(app.Axes,x_sonar,y_sonar,'.','g','LineStyle','none')
-              
-                    
                 end
                 
                 %Ploting The Lidar
                 if boton_lidar~=0
                     stem(app.Axes,x_lidar,y_lidar,'.','r','LineStyle','none') 
-                   
-                    
                 end
                 
+                %Ploting The Fusion
                 if boton_fusion~=0
                     stem(app.Axes,x_fusion,y_fusion,'.','b','LineStyle','none')
                 end
                 
                 drawnow;
-                %Increase For The Port Flush Counter
-                end
-                %drawnow
-                
-            end
-            end
-            
+            end            
         end
 
-        % Value changed function: OnOffButton
-        function On_Off(app, event)
-            global boton_on;
-            value = app.OnOffButton.Value;
-            boton_on = value;
-
+        % Value changed function: LidarButton
+        function Lidar(app, event)
+            global boton_lidar
+            value = app.LidarButton.Value;
+            boton_lidar = value;
+            global theta
+            global r_lidar
+            %r_lidar = zeros(1,length(theta));
+      
         end
 
         % Value changed function: SonarButton
@@ -258,6 +189,8 @@ classdef Sonar_Lidar_App_V_1 < matlab.apps.AppBase
 
         % Close request function: UIFigure
         function UIFigureCloseRequest(app, event)
+            global App_on;
+            App_on = 0;
             instrreset
             delete(app);
             
