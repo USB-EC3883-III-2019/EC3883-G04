@@ -2,19 +2,10 @@ clear all
 clc
 
 register = fopen('data_log.txt','wt');
-format = 'i=%d | j=[%d %d %d] \n';
-i=1;
-j=[1:3];
+format = 'Position=%d | Sonar = %d | Lidar = %d | Fusion = %d]\n';
 
 
-
-while i<101
-
-
-fprintf(register,format,i,j);
-i=i+1;
-
-end
+fprintf(register,format,dpos,aux_Sonar,aux_Lidar,aux_Fusion);
 
 
 
